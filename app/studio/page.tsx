@@ -77,6 +77,7 @@ export default function StudioPage() {
     if (tool === "wall" || tool === "measure" || tool === "room") {
       if (!pendingPoint) { setPendingPoint(next); return; }
       if (tool === "wall") setDrawnWalls(items => [...items, { x1: pendingPoint.x, y1: pendingPoint.y, x2: next.x, y2: next.y }]);
+      else if (tool === "room") setDrawnWalls(items => [...items, {x1:pendingPoint.x,y1:pendingPoint.y,x2:next.x,y2:pendingPoint.y},{x1:next.x,y1:pendingPoint.y,x2:next.x,y2:next.y},{x1:next.x,y1:next.y,x2:pendingPoint.x,y2:next.y},{x1:pendingPoint.x,y1:next.y,x2:pendingPoint.x,y2:pendingPoint.y}]);
       else setPlanMarkers(items => [...items, { x: pendingPoint.x, y: pendingPoint.y, kind: "measure" }, { x: next.x, y: next.y, kind: "measure" }]);
       setPendingPoint(null); setSaved(false); return;
     }
@@ -84,7 +85,7 @@ export default function StudioPage() {
   }
 
   function exportProjectFile() {
-    const project = { format: "archnova-project", version: 1, projectName, drawnWalls, planMarkers, floor, view, showDimensions, showFurniture, showStarterPlan, zoom, updatedAt: new Date().toISOString() };
+    const project = { format: "archnova-project", version: 1, projectName, drawnWalls, planMarkers, floor, view, showDimensions, showFurniture, showStarterPlan, wallHeight, wallThickness, gridSnap, zoom, updatedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(project, null, 2)], { type: "application/json;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "archnova-project.json"; a.click();
@@ -112,6 +113,9 @@ export default function StudioPage() {
         if (typeof project.showDimensions === "boolean") setShowDimensions(project.showDimensions);
         if (typeof project.showStarterPlan === "boolean") setShowStarterPlan(project.showStarterPlan);
         if (typeof project.showFurniture === "boolean") setShowFurniture(project.showFurniture);
+        if (typeof project.wallHeight === "number") setWallHeight(project.wallHeight);
+        if (typeof project.wallThickness === "number") setWallThickness(project.wallThickness);
+        if (typeof project.gridSnap === "boolean") setGridSnap(project.gridSnap);
         if (typeof project.zoom === "number") setZoom(Math.max(50, Math.min(150, project.zoom)));
         setPendingPoint(null);
         setSaved(false);
