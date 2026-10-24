@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import HouseScene from "./HouseScene";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type Tool = "select" | "wall" | "door" | "window" | "measure";
 const tools: { id: Tool; label: string; glyph: string }[] = [
@@ -22,7 +22,7 @@ export default function StudioPage() {
   const [saved, setSaved] = useState(false);
   const [drawnWalls, setDrawnWalls] = useState<{x1:number;y1:number;x2:number;y2:number}[]>([]);
   const [pendingPoint, setPendingPoint] = useState<{x:number;y:number}|null>(null);
-  const [planMarkers, setPlanMarkers] = useState<{x:number;y:number;kind:"door"|"window"|"measure"}[]>([]);
+  const [planMarkers, setPlanMarkers] = useState<{x:number;y:number;kind:"door"|"window"|"measure"}[]>([]);\n  const projectFileInput = useRef<HTMLInputElement>(null);
   const roomCount = useMemo(() => showFurniture ? "08" : "06", [showFurniture]);
 
   useEffect(() => {
@@ -65,6 +65,46 @@ export default function StudioPage() {
     if (tool === "door" || tool === "window") { setPlanMarkers(items => [...items, { ...next, kind: tool }]); setSaved(false); }
   }
 
+  function exportProjectFile() {
+    const project = { format: "archnova-project", version: 1, projectName, drawnWalls, planMarkers, floor, view, showDimensions, showFurniture, zoom, updatedAt: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(project, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = "archnova-project.json"; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function importProjectFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const project = JSON.parse(String(reader.result));
+        if (project.format !== "archnova-project" || !Array.isArray(project.drawnWalls) || !Array.isArray(project.planMarkers)) {
+          throw new Error("This is not a valid ArchNova project file.");
+        }
+        const validWalls = project.drawnWalls.every((w: any) => [w.x1,w.y1,w.x2,w.y2].every((n: unknown) => typeof n === "number" && Number.isFinite(n)));
+        const validMarkers = project.planMarkers.every((m: any) => typeof m.x === "number" && typeof m.y === "number" && ["door","window","measure"].includes(m.kind));
+        if (!validWalls || !validMarkers) throw new Error("The project file contains invalid drawing data.");
+        setProjectName(typeof project.projectName === "string" ? project.projectName : "Imported project");
+        setDrawnWalls(project.drawnWalls);
+        setPlanMarkers(project.planMarkers);
+        if (["Ground floor", "Upper floor", "Roof plan"].includes(project.floor)) setFloor(project.floor);
+        if (["split", "plan", "model"].includes(project.view)) setView(project.view);
+        if (typeof project.showDimensions === "boolean") setShowDimensions(project.showDimensions);
+        if (typeof project.showFurniture === "boolean") setShowFurniture(project.showFurniture);
+        if (typeof project.zoom === "number") setZoom(Math.max(50, Math.min(150, project.zoom)));
+        setPendingPoint(null);
+        setSaved(false);
+      } catch (error) {
+        window.alert(error instanceof Error ? error.message : "Could not import this project file.");
+      } finally {
+        e.target.value = "";
+      }
+    };
+    reader.readAsText(file);
+  }
+
   function exportPlan() {
     const svg = document.getElementById("floor-plan-svg");
     if (!svg) return;
@@ -81,7 +121,7 @@ export default function StudioPage() {
       <header className="studio-topbar">
         <Link className="studio-brand" href="/"><span className="brand-mark">A</span><span>ARCHNOVA <i>STUDIO</i></span></Link>
         <div className="project-title"><span className="project-kicker">PROJECT / 014</span><input aria-label="Project name" value={projectName} onChange={e => { setProjectName(e.target.value); setSaved(false); }} /></div>
-        <div className="topbar-actions"><span className="saved-state"><span className={saved ? "live-dot" : "status-hollow"} />{saved ? "Saved locally" : "Unsaved changes"}</span><button className="top-action" onClick={saveProjectLocally}>Save locally</button><button className="top-action" onClick={exportPlan}>Export SVG ↗</button><button className="avatar-button" title="Workspace profile">AN</button></div>
+        <div className="topbar-actions"><span className="saved-state"><span className={saved ? "live-dot" : "status-hollow"} />{saved ? "Saved locally" : "Unsaved changes"}</span><button className="top-action" onClick={saveProjectLocally}>Save locally</button><button className="top-action" onClick={exportProjectFile}>Export project ↓</button><button className="top-action" onClick={() => projectFileInput.current?.click()}>Import project ↑</button><input ref={projectFileInput} type="file" accept="application/json,.json" aria-label="Import ArchNova project file" onChange={importProjectFile} style={{display:"none"}} /><button className="top-action" onClick={exportPlan}>Export SVG ↗</button><button className="avatar-button" title="Workspace profile">AN</button></div>
       </header>
       <div className="studio-subbar"><div className="breadcrumbs"><span>Projects</span><b>/</b><span>{projectName || "Untitled project"}</span><b>/</b><strong>Design workspace</strong></div><div className="subbar-right"><span className="online-indicator" /> LOCAL PROJECT <span className="sub-divider" /> AUTOSAVE OFF</div></div>
       <div className="studio-layout">
