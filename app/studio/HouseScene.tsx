@@ -5,12 +5,30 @@ import { ContactShadows, Environment, Grid, OrbitControls } from "@react-three/d
 import { Suspense } from "react";
 import * as THREE from "three";
 
-function HouseGeometry() {
+type PlanWall = { x1: number; y1: number; x2: number; y2: number };
+
+function HouseGeometry({ walls }: { walls: PlanWall[] }) {
   const wall = "#9eafa1";
   const roof = "#506458";
   const glass = "#24483b";
   return (
     <group position={[0, -0.02, 0]} rotation={[0, 0.025, 0]}>
+      {/* User-drawn plan walls are mirrored into the 3D viewport. */}
+      {walls.map((wall, index) => {
+        const x1 = (wall.x1 - 270) / 71;
+        const z1 = (205 - wall.y1) / 72;
+        const x2 = (wall.x2 - 270) / 71;
+        const z2 = (205 - wall.y2) / 72;
+        const dx = x2 - x1;
+        const dz = z2 - z1;
+        const length = Math.max(0.08, Math.hypot(dx, dz));
+        return (
+          <mesh key={`custom-wall-${index}`} position={[(x1 + x2) / 2, 1.35, (z1 + z2) / 2]} rotation={[0, Math.atan2(-dz, dx), 0]} castShadow>
+            <boxGeometry args={[length, 2.7, 0.11]} />
+            <meshStandardMaterial color="#70c795" transparent opacity={0.78} roughness={0.65} />
+          </mesh>
+        );
+      })}
       {/* Site plinth */}
       <mesh position={[0, -0.1, 0]} receiveShadow>
         <boxGeometry args={[7.6, 0.2, 5.7]} />
@@ -96,7 +114,7 @@ function HouseGeometry() {
   );
 }
 
-function Scene() {
+function Scene({ walls }: { walls: PlanWall[] }) {
   return (
     <>
       <color attach="background" args={["#172019"]} />
@@ -104,7 +122,7 @@ function Scene() {
       <ambientLight intensity={1.25} />
       <directionalLight position={[5, 8, 5]} intensity={2.2} castShadow shadow-mapSize={[1024, 1024]} />
       <directionalLight position={[-4, 5, -4]} intensity={0.8} color="#a9d5b5" />
-      <HouseGeometry />
+      <HouseGeometry walls={walls} />
       <Grid
         position={[0, -0.205, 0]}
         args={[18, 18]}
@@ -133,7 +151,7 @@ function Scene() {
   );
 }
 
-export default function HouseScene() {
+export default function HouseScene({ walls = [] }: { walls?: PlanWall[] }) {
   return (
     <div className="real-3d-scene" aria-label="Interactive 3D architectural house model">
       <Canvas
@@ -143,7 +161,7 @@ export default function HouseScene() {
         gl={{ antialias: true, alpha: false, toneMapping: THREE.ACESFilmicToneMapping }}
       >
         <Suspense fallback={null}>
-          <Scene />
+          <Scene walls={walls} />
         </Suspense>
       </Canvas>
       <div className="scene-hint">DRAG TO ORBIT · SCROLL TO ZOOM</div>
