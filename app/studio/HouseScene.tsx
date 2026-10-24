@@ -8,7 +8,7 @@ import * as THREE from "three";
 type PlanWall = { x1: number; y1: number; x2: number; y2: number };
 type PlanMarker = { x: number; y: number; kind: "door" | "window" | "measure" };
 
-function HouseGeometry({ walls, markers }: { walls: PlanWall[]; markers: PlanMarker[] }) {
+function HouseGeometry({ walls, markers, wallHeight, wallThickness }: { walls: PlanWall[]; markers: PlanMarker[]; wallHeight: number; wallThickness: number }) {
   return (
     <group position={[0, -0.02, 0]}>
       {walls.map((wall, index) => {
@@ -20,8 +20,8 @@ function HouseGeometry({ walls, markers }: { walls: PlanWall[]; markers: PlanMar
         const dz = z2 - z1;
         const length = Math.max(0.08, Math.hypot(dx, dz));
         return (
-          <mesh key={`custom-wall-${index}`} position={[(x1 + x2) / 2, 1.35, (z1 + z2) / 2]} rotation={[0, Math.atan2(-dz, dx), 0]} castShadow>
-            <boxGeometry args={[length, 2.7, 0.11]} />
+          <mesh key={`custom-wall-${index}`} position={[(x1 + x2) / 2, wallHeight / 2, (z1 + z2) / 2]} rotation={[0, Math.atan2(-dz, dx), 0]} castShadow>
+            <boxGeometry args={[length, wallHeight, wallThickness]} />
             <meshStandardMaterial color="#70c795" roughness={0.65} />
           </mesh>
         );
@@ -47,7 +47,7 @@ function HouseGeometry({ walls, markers }: { walls: PlanWall[]; markers: PlanMar
   );
 }
 
-function Scene({ walls, markers }: { walls: PlanWall[]; markers: PlanMarker[] }) {
+function Scene({ walls, markers, wallHeight, wallThickness }: { walls: PlanWall[]; markers: PlanMarker[]; wallHeight: number; wallThickness: number }) {
   return (
     <>
       <color attach="background" args={["#172019"]} />
@@ -55,7 +55,7 @@ function Scene({ walls, markers }: { walls: PlanWall[]; markers: PlanMarker[] })
       <ambientLight intensity={1.25} />
       <directionalLight position={[5, 8, 5]} intensity={2.2} castShadow shadow-mapSize={[1024, 1024]} />
       <directionalLight position={[-4, 5, -4]} intensity={0.8} color="#a9d5b5" />
-      <HouseGeometry walls={walls} markers={markers} />
+      <HouseGeometry walls={walls} markers={markers} wallHeight={wallHeight} wallThickness={wallThickness} />
       <Grid
         position={[0, -0.205, 0]}
         args={[18, 18]}
@@ -84,7 +84,7 @@ function Scene({ walls, markers }: { walls: PlanWall[]; markers: PlanMarker[] })
   );
 }
 
-export default function HouseScene({ walls = [], markers = [] }: { walls?: PlanWall[]; markers?: PlanMarker[] }) {
+export default function HouseScene({ walls = [], markers = [], wallHeight = 2.7, wallThickness = 0.11 }: { walls?: PlanWall[]; markers?: PlanMarker[]; wallHeight?: number; wallThickness?: number }) {
   return (
     <div className="real-3d-scene" aria-label="Interactive 3D architectural house model">
       <Canvas
@@ -94,7 +94,7 @@ export default function HouseScene({ walls = [], markers = [] }: { walls?: PlanW
         gl={{ antialias: true, alpha: false, toneMapping: THREE.ACESFilmicToneMapping }}
       >
         <Suspense fallback={null}>
-          <Scene walls={walls} markers={markers} />
+          <Scene walls={walls} markers={markers} wallHeight={wallHeight} wallThickness={wallThickness} />
         </Suspense>
       </Canvas>
       <div className="scene-hint">DRAG TO ORBIT · SCROLL TO ZOOM</div>
