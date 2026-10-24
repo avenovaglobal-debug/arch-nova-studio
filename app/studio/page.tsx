@@ -22,7 +22,8 @@ export default function StudioPage() {
   const [saved, setSaved] = useState(false);
   const [drawnWalls, setDrawnWalls] = useState<{x1:number;y1:number;x2:number;y2:number}[]>([]);
   const [pendingPoint, setPendingPoint] = useState<{x:number;y:number}|null>(null);
-  const [planMarkers, setPlanMarkers] = useState<{x:number;y:number;kind:"door"|"window"|"measure"}[]>([]);\n  const projectFileInput = useRef<HTMLInputElement>(null);
+  const [planMarkers, setPlanMarkers] = useState<{x:number;y:number;kind:"door"|"window"|"measure"}[]>([]);
+  const projectFileInput = useRef<HTMLInputElement>(null);
   const roomCount = useMemo(() => showFurniture ? "08" : "06", [showFurniture]);
 
   useEffect(() => {
