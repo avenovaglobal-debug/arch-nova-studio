@@ -16,3 +16,54 @@
 .real-3d-scene .scene-hint{position:absolute;left:12px;top:12px;z-index:2;padding:6px 8px;background:#121a15bb;border:1px solid #435647;color:#8ba997;font:7px var(--mono);letter-spacing:.8px;pointer-events:none}
 .model-canvas>.model-caption{z-index:3;pointer-events:none;text-shadow:0 1px 8px #000}
 @media(max-width:760px){.real-3d-scene .scene-hint{font-size:7px}.model-canvas>.model-caption{bottom:14px;right:12px}}
+
+/* Mobile-first workspace refinements */
+@media(max-width:760px){
+  html,body{max-width:100%;overflow-x:hidden}
+  .landing{overflow:hidden}
+  .hero h1{font-size:clamp(42px,12vw,56px);line-height:.98}
+  .hero-art{width:100%;min-width:0}
+  .blueprint-card,.model-card{min-width:0;width:100%}
+  .studio-shell{width:100%;max-width:100vw}
+  .studio-topbar{min-width:0;flex-wrap:wrap;height:auto;min-height:56px;padding:8px 10px;row-gap:7px}
+  .studio-brand{flex:0 0 auto}
+  .project-title{flex:1;min-width:0;padding-left:8px}
+  .project-title input{width:100%;min-width:0;max-width:160px}
+  .topbar-actions{width:100%;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:5px}
+  .top-action{min-height:34px;padding:7px 9px}
+  .top-action:nth-of-type(2){display:inline-flex}
+  .studio-subbar{min-height:30px;gap:8px;flex-wrap:wrap}
+  .breadcrumbs{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:8px}
+  .subbar-right{white-space:nowrap}
+  .workspace-main{min-width:0;width:100%}
+  .workspace-toolbar{position:relative;align-items:center}
+  .tool-context{flex:1 1 100%;min-width:0}
+  .view-switch{display:flex;max-width:100%;flex:1}
+  .view-switch button{flex:1;white-space:nowrap}
+  .viewport-grid{min-width:0;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(300px,auto) minmax(330px,auto);height:auto}
+  .viewport{min-width:0;min-height:300px}
+  .plan-viewport{overflow:hidden}
+  .plan-canvas{width:100%;max-width:100%;transform-origin:top left!important}
+  .floor-plan-svg{width:100%;height:auto;display:block}
+  .model-viewport .model-canvas{min-height:320px}
+  .real-3d-scene{min-height:320px}
+  .real-3d-scene canvas{touch-action:pan-y}
+  .viewport-head{padding-left:10px;padding-right:10px}
+  .viewport-foot{gap:8px;flex-wrap:wrap}
+  .workspace-status{position:relative;flex-wrap:wrap;min-height:30px;height:auto;padding:7px 10px}
+  .tool-rail{left:0;right:0;padding-bottom:max(6px,env(safe-area-inset-bottom))}
+  .rail-group{width:100%;justify-content:space-evenly}
+  .rail-tool{flex:1;max-width:68px;min-width:0;min-height:46px}
+  .properties-panel{min-width:0;width:100%}
+  .property-section,.inspector-project,.inspector-bottom{padding-left:14px;padding-right:14px}
+  .property-section input,.property-section select,.top-action,.rail-tool,.view-switch button{font-size:12px}
+}
+@media(max-width:390px){
+  .studio-brand>span:last-child{font-size:8px}
+  .project-title input{max-width:115px}
+  .topbar-actions{justify-content:space-between}
+  .top-action{font-size:8px;padding:6px}
+  .viewport-grid{grid-template-rows:minmax(270px,auto) minmax(300px,auto)}
+  .view-switch button{padding:7px 3px;font-size:9px}
+  .hero h1{letter-spacing:-1.8px}
+}
