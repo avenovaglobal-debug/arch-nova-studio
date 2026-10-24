@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: arch-nova-studio
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeploy: true
