@@ -9,12 +9,8 @@ type PlanWall = { x1: number; y1: number; x2: number; y2: number };
 type PlanMarker = { x: number; y: number; kind: "door" | "window" | "measure" };
 
 function HouseGeometry({ walls, markers }: { walls: PlanWall[]; markers: PlanMarker[] }) {
-  const wall = "#9eafa1";
-  const roof = "#506458";
-  const glass = "#24483b";
   return (
-    <group position={[0, -0.02, 0]} rotation={[0, 0.025, 0]}>
-      {/* User-drawn plan walls are mirrored into the 3D viewport. */}
+    <group position={[0, -0.02, 0]}>
       {walls.map((wall, index) => {
         const x1 = (wall.x1 - 270) / 71;
         const z1 = (205 - wall.y1) / 72;
@@ -26,11 +22,10 @@ function HouseGeometry({ walls, markers }: { walls: PlanWall[]; markers: PlanMar
         return (
           <mesh key={`custom-wall-${index}`} position={[(x1 + x2) / 2, 1.35, (z1 + z2) / 2]} rotation={[0, Math.atan2(-dz, dx), 0]} castShadow>
             <boxGeometry args={[length, 2.7, 0.11]} />
-            <meshStandardMaterial color="#70c795" transparent opacity={0.78} roughness={0.65} />
+            <meshStandardMaterial color="#70c795" roughness={0.65} />
           </mesh>
         );
       })}
-      {/* Door and window markers from the 2D plan are represented in the 3D scene. */}
       {markers.filter((marker) => marker.kind === "door" || marker.kind === "window").map((marker, index) => {
         const x = (marker.x - 270) / 71;
         const z = (205 - marker.y) / 72;
@@ -48,43 +43,6 @@ function HouseGeometry({ walls, markers }: { walls: PlanWall[]; markers: PlanMar
           </group>
         );
       })}
-      {/* No prebuilt house: geometry is generated from the architect's own plan edits. */}
-    </group>
-      ))}
-      {/* Entry door */}
-      <mesh position={[1.65, 0.8, 2.14]}>
-        <boxGeometry args={[0.72, 1.55, 0.06]} />
-        <meshStandardMaterial color="#354b3d" roughness={0.6} />
-      </mesh>
-      {/* Recessed balcony and thin rail */}
-      <mesh position={[1.45, 2.0, 1.9]}>
-        <boxGeometry args={[1.65, 0.08, 0.8]} />
-        <meshStandardMaterial color="#a8b9ab" />
-      </mesh>
-      <mesh position={[1.45, 2.28, 2.25]}>
-        <boxGeometry args={[1.65, 0.035, 0.035]} />
-        <meshStandardMaterial color="#d0dbd1" metalness={0.55} roughness={0.35} />
-      </mesh>
-      {[-0.25, 0.45, 1.15, 1.95, 2.25].map((x) => (
-        <mesh key={x} position={[x, 2.14, 2.25]}>
-          <boxGeometry args={[0.025, 0.28, 0.025]} />
-          <meshStandardMaterial color="#c1d0c4" metalness={0.45} />
-        </mesh>
-      ))}
-      {/* Side windows visible in orbit */}
-      {[-1.1, 0.5].map((z) => (
-        <mesh key={z} position={[2.81, 0.98, z]}>
-          <boxGeometry args={[0.035, 0.88, 0.75]} />
-          <meshStandardMaterial color={glass} metalness={0.22} roughness={0.2} />
-        </mesh>
-      ))}
-      {/* Slim architectural fins */}
-      {[-2.3, -2.05, -1.8].map((x) => (
-        <mesh key={x} position={[x, 0.92, 2.17]}>
-          <boxGeometry args={[0.035, 1.55, 0.09]} />
-          <meshStandardMaterial color="#c4d1c6" roughness={0.7} />
-        </mesh>
-      ))}
     </group>
   );
 }
