@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import HouseScene from "./HouseScene";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Tool = "select" | "wall" | "door" | "window" | "measure";
 const tools: { id: Tool; label: string; glyph: string }[] = [
@@ -24,6 +24,25 @@ export default function StudioPage() {
   const [pendingPoint, setPendingPoint] = useState<{x:number;y:number}|null>(null);
   const [planMarkers, setPlanMarkers] = useState<{x:number;y:number;kind:"door"|"window"|"measure"}[]>([]);
   const roomCount = useMemo(() => showFurniture ? "08" : "06", [showFurniture]);
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem("archnova-studio-project");
+      if (!raw) return;
+      const project = JSON.parse(raw);
+      if (typeof project.projectName === "string") setProjectName(project.projectName);
+      if (Array.isArray(project.drawnWalls)) setDrawnWalls(project.drawnWalls);
+      if (Array.isArray(project.planMarkers)) setPlanMarkers(project.planMarkers);
+      setSaved(true);
+    } catch { /* Ignore an unavailable or malformed local project. */ }
+  }, []);
+
+  function saveProjectLocally() {
+    try {
+      window.localStorage.setItem("archnova-studio-project", JSON.stringify({ projectName, drawnWalls, planMarkers, updatedAt: new Date().toISOString() }));
+      setSaved(true);
+    } catch { setSaved(false); }
+  }
 
   function handlePlanClick(e: React.MouseEvent<SVGSVGElement>) {
     if (tool === "select") return;
@@ -57,7 +76,7 @@ export default function StudioPage() {
       <header className="studio-topbar">
         <Link className="studio-brand" href="/"><span className="brand-mark">A</span><span>ARCHNOVA <i>STUDIO</i></span></Link>
         <div className="project-title"><span className="project-kicker">PROJECT / 014</span><input aria-label="Project name" value={projectName} onChange={e => { setProjectName(e.target.value); setSaved(false); }} /></div>
-        <div className="topbar-actions"><span className="saved-state"><span className={saved ? "live-dot" : "status-hollow"} />{saved ? "Saved locally" : "Unsaved changes"}</span><button className="top-action" onClick={() => setSaved(true)}>Save</button><button className="top-action" onClick={exportPlan}>Export SVG ↗</button><button className="avatar-button" title="Workspace profile">AN</button></div>
+        <div className="topbar-actions"><span className="saved-state"><span className={saved ? "live-dot" : "status-hollow"} />{saved ? "Saved locally" : "Unsaved changes"}</span><button className="top-action" onClick={saveProjectLocally}>Save locally</button><button className="top-action" onClick={exportPlan}>Export SVG ↗</button><button className="avatar-button" title="Workspace profile">AN</button></div>
       </header>
       <div className="studio-subbar"><div className="breadcrumbs"><span>Projects</span><b>/</b><span>{projectName || "Untitled project"}</span><b>/</b><strong>Design workspace</strong></div><div className="subbar-right"><span className="online-indicator" /> LOCAL PROJECT <span className="sub-divider" /> AUTOSAVE OFF</div></div>
       <div className="studio-layout">
