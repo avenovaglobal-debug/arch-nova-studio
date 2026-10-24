@@ -6,7 +6,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type Tool = "select" | "wall" | "room" | "door" | "window" | "measure" | "erase";
 const tools: { id: Tool; label: string; glyph: string }[] = [
-  { id: "select", label: "Select", glyph: "↖" }, { id: "wall", label: "Draw wall", glyph: "⌜" },\n  { id: "room", label: "Room / rectangle", glyph: "□" },
+  { id: "select", label: "Select", glyph: "↖" }, { id: "wall", label: "Draw wall", glyph: "⌜" },
+  { id: "room", label: "Room / rectangle", glyph: "□" },
   { id: "door", label: "Add door", glyph: "◔" }, { id: "window", label: "Add window", glyph: "▥" },
   { id: "measure", label: "Measure", glyph: "↔" }, { id: "erase", label: "Erase", glyph: "⌫" }
 ];
@@ -20,7 +21,10 @@ export default function StudioPage() {
   const [showStarterPlan, setShowStarterPlan] = useState(false);
   const [showFurniture, setShowFurniture] = useState(true);
   const [zoom, setZoom] = useState(100);
-  const [saved, setSaved] = useState(false);\n  const [wallHeight, setWallHeight] = useState(2.7);\n  const [wallThickness, setWallThickness] = useState(0.11);\n  const [gridSnap, setGridSnap] = useState(true);
+  const [saved, setSaved] = useState(false);
+  const [wallHeight, setWallHeight] = useState(2.7);
+  const [wallThickness, setWallThickness] = useState(0.11);
+  const [gridSnap, setGridSnap] = useState(true);
   const [drawnWalls, setDrawnWalls] = useState<{x1:number;y1:number;x2:number;y2:number}[]>([]);
   const [pendingPoint, setPendingPoint] = useState<{x:number;y:number}|null>(null);
   const [planMarkers, setPlanMarkers] = useState<{x:number;y:number;kind:"door"|"window"|"measure"}[]>([]);
@@ -39,7 +43,10 @@ export default function StudioPage() {
       if (["split", "plan", "model"].includes(project.view)) setView(project.view);
       if (typeof project.showDimensions === "boolean") setShowDimensions(project.showDimensions);
       if (typeof project.showStarterPlan === "boolean") setShowStarterPlan(project.showStarterPlan);
-      if (typeof project.showFurniture === "boolean") setShowFurniture(project.showFurniture);\n      if (typeof project.wallHeight === "number") setWallHeight(project.wallHeight);\n      if (typeof project.wallThickness === "number") setWallThickness(project.wallThickness);\n      if (typeof project.gridSnap === "boolean") setGridSnap(project.gridSnap);
+      if (typeof project.showFurniture === "boolean") setShowFurniture(project.showFurniture);
+      if (typeof project.wallHeight === "number") setWallHeight(project.wallHeight);
+      if (typeof project.wallThickness === "number") setWallThickness(project.wallThickness);
+      if (typeof project.gridSnap === "boolean") setGridSnap(project.gridSnap);
       if (typeof project.zoom === "number") setZoom(Math.max(50, Math.min(150, project.zoom)));
       setSaved(true);
     } catch { /* Ignore an unavailable or malformed local project. */ }
@@ -58,7 +65,15 @@ export default function StudioPage() {
     const point = svg.createSVGPoint();
     point.x = e.clientX; point.y = e.clientY;
     const p = point.matrixTransform(svg.getScreenCTM()?.inverse());
-    let next = { x: Math.max(8, Math.min(532, p.x)), y: Math.max(8, Math.min(402, p.y)) };\n    if (gridSnap) next = { x: Math.round(next.x / 12) * 12, y: Math.round(next.y / 12) * 12 };\n    if (tool === "erase") {\n      const nearestWall = drawnWalls.reduce((best, w, i) => { const d = Math.hypot((w.x1+w.x2)/2-next.x, (w.y1+w.y2)/2-next.y); return d < best.distance ? { index:i, distance:d } : best; }, { index:-1, distance:Infinity });\n      const nearestMarker = planMarkers.reduce((best, m, i) => { const d = Math.hypot(m.x-next.x, m.y-next.y); return d < best.distance ? { index:i, distance:d } : best; }, { index:-1, distance:Infinity });\n      if (nearestMarker.distance < 22 && nearestMarker.distance <= nearestWall.distance) setPlanMarkers(items => items.filter((_,i) => i !== nearestMarker.index));\n      else if (nearestWall.distance < 30) setDrawnWalls(items => items.filter((_,i) => i !== nearestWall.index));\n      setSaved(false); return;\n    }
+    let next = { x: Math.max(8, Math.min(532, p.x)), y: Math.max(8, Math.min(402, p.y)) };
+    if (gridSnap) next = { x: Math.round(next.x / 12) * 12, y: Math.round(next.y / 12) * 12 };
+    if (tool === "erase") {
+      const nearestWall = drawnWalls.reduce((best, w, i) => { const d = Math.hypot((w.x1+w.x2)/2-next.x, (w.y1+w.y2)/2-next.y); return d < best.distance ? { index:i, distance:d } : best; }, { index:-1, distance:Infinity });
+      const nearestMarker = planMarkers.reduce((best, m, i) => { const d = Math.hypot(m.x-next.x, m.y-next.y); return d < best.distance ? { index:i, distance:d } : best; }, { index:-1, distance:Infinity });
+      if (nearestMarker.distance < 22 && nearestMarker.distance <= nearestWall.distance) setPlanMarkers(items => items.filter((_,i) => i !== nearestMarker.index));
+      else if (nearestWall.distance < 30) setDrawnWalls(items => items.filter((_,i) => i !== nearestWall.index));
+      setSaved(false); return;
+    }
     if (tool === "wall" || tool === "measure" || tool === "room") {
       if (!pendingPoint) { setPendingPoint(next); return; }
       if (tool === "wall") setDrawnWalls(items => [...items, { x1: pendingPoint.x, y1: pendingPoint.y, x2: next.x, y2: next.y }]);
