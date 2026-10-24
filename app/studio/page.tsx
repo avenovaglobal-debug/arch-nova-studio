@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import HouseScene from "./HouseScene";
 import { useMemo, useState } from "react";
 
 type Tool = "select" | "wall" | "door" | "window" | "measure";
@@ -58,7 +59,7 @@ export default function StudioPage() {
             {showDimensions && <g stroke="#74bd97" strokeWidth=".8" fill="#8fc5a8" fontSize="9" fontFamily="monospace"><path d="M85 48V60M440 48V60M85 53H440"/><text x="250" y="44" textAnchor="middle" stroke="none">12.40 m</text><path d="M63 70H75M63 335H75M68 70V335"/><text x="57" y="206" textAnchor="middle" transform="rotate(-90 57 206)" stroke="none">9.20 m</text></g>}
             <g fill="#75c6a0"><circle cx="85" cy="70" r="3"/><circle cx="440" cy="335" r="3"/></g>
           </svg></div><div className="viewport-foot"><span>GFA / 114.2 m²</span><span>{roomCount} SPACES</span><span>{showDimensions ? "DIMENSIONS ON" : "DIMENSIONS OFF"}</span></div></section>
-            <section className="viewport model-viewport"><div className="viewport-head"><div><span className="view-index">02</span><b>3D CONCEPT</b><small>AXONOMETRIC / PERSPECTIVE</small></div><span className="model-tag"><span className="live-dot" /> PREVIEW</span></div><div className="model-canvas"><div className="model-grid-floor" /><div className="model-axis axis-x">X</div><div className="model-axis axis-y">Y</div><div className="model-house"><div className="mh-shadow" /><div className="mh-roof" /><div className="mh-upper"><span className="mh-window one"/><span className="mh-window two"/><span className="mh-slab" /></div><div className="mh-ground"><span className="mh-glass one"/><span className="mh-glass two"/><span className="mh-door" /></div><div className="mh-side"><span className="mh-side-window" /></div><div className="mh-plinth" /></div><div className="model-scale">1 m <span /></div><div className="model-caption">COURTYARD HOUSE <small>CONCEPT / REV 01</small></div></div><div className="viewport-foot"><span>CAMERA / AXON</span><span>CONCEPT MASSING</span><span>REV 01.04</span></div></section>
+            <section className="viewport model-viewport"><div className="viewport-head"><div><span className="view-index">02</span><b>3D CONCEPT</b><small>AXONOMETRIC / PERSPECTIVE</small></div><span className="model-tag"><span className="live-dot" /> PREVIEW</span></div><div className="model-canvas"><HouseScene /><div className="model-caption">COURTYARD HOUSE <small>CONCEPT / REV 01</small></div><div className="viewport-foot"><span>CAMERA / AXON</span><span>CONCEPT MASSING</span><span>REV 01.04</span></div></section>
           </div>
           <footer className="workspace-status"><span><span className="online-indicator" /> READY</span><span>TOOL / {tool.toUpperCase()}</span><span>UNITS / METRIC</span><span className="status-spacer" /><span>GRID SNAP <b>ON</b></span><span>ORTHO <b>ON</b></span></footer>
         </section>
