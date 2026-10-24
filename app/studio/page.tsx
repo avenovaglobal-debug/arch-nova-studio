@@ -17,6 +17,7 @@ export default function StudioPage() {
   const [floor, setFloor] = useState("Ground floor");
   const [projectName, setProjectName] = useState("Courtyard House");
   const [showDimensions, setShowDimensions] = useState(true);
+  const [showStarterPlan, setShowStarterPlan] = useState(false);
   const [showFurniture, setShowFurniture] = useState(true);
   const [zoom, setZoom] = useState(100);
   const [saved, setSaved] = useState(false);
@@ -37,6 +38,7 @@ export default function StudioPage() {
       if (["Ground floor", "Upper floor", "Roof plan"].includes(project.floor)) setFloor(project.floor);
       if (["split", "plan", "model"].includes(project.view)) setView(project.view);
       if (typeof project.showDimensions === "boolean") setShowDimensions(project.showDimensions);
+      if (typeof project.showStarterPlan === "boolean") setShowStarterPlan(project.showStarterPlan);
       if (typeof project.showFurniture === "boolean") setShowFurniture(project.showFurniture);
       if (typeof project.zoom === "number") setZoom(Math.max(50, Math.min(150, project.zoom)));
       setSaved(true);
@@ -45,7 +47,7 @@ export default function StudioPage() {
 
   function saveProjectLocally() {
     try {
-      window.localStorage.setItem("archnova-studio-project", JSON.stringify({ projectName, drawnWalls, planMarkers, floor, view, showDimensions, showFurniture, zoom, updatedAt: new Date().toISOString() }));
+      window.localStorage.setItem("archnova-studio-project", JSON.stringify({ projectName, drawnWalls, planMarkers, floor, view, showDimensions, showFurniture, showStarterPlan, zoom, updatedAt: new Date().toISOString() }));
       setSaved(true);
     } catch { setSaved(false); }
   }
@@ -67,7 +69,7 @@ export default function StudioPage() {
   }
 
   function exportProjectFile() {
-    const project = { format: "archnova-project", version: 1, projectName, drawnWalls, planMarkers, floor, view, showDimensions, showFurniture, zoom, updatedAt: new Date().toISOString() };
+    const project = { format: "archnova-project", version: 1, projectName, drawnWalls, planMarkers, floor, view, showDimensions, showFurniture, showStarterPlan, zoom, updatedAt: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(project, null, 2)], { type: "application/json;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = "archnova-project.json"; a.click();
@@ -93,6 +95,7 @@ export default function StudioPage() {
         if (["Ground floor", "Upper floor", "Roof plan"].includes(project.floor)) setFloor(project.floor);
         if (["split", "plan", "model"].includes(project.view)) setView(project.view);
         if (typeof project.showDimensions === "boolean") setShowDimensions(project.showDimensions);
+        if (typeof project.showStarterPlan === "boolean") setShowStarterPlan(project.showStarterPlan);
         if (typeof project.showFurniture === "boolean") setShowFurniture(project.showFurniture);
         if (typeof project.zoom === "number") setZoom(Math.max(50, Math.min(150, project.zoom)));
         setPendingPoint(null);
@@ -122,7 +125,7 @@ export default function StudioPage() {
       <header className="studio-topbar">
         <Link className="studio-brand" href="/"><span className="brand-mark">A</span><span>ARCHNOVA <i>STUDIO</i></span></Link>
         <div className="project-title"><span className="project-kicker">PROJECT / 014</span><input aria-label="Project name" value={projectName} onChange={e => { setProjectName(e.target.value); setSaved(false); }} /></div>
-        <div className="topbar-actions"><span className="saved-state"><span className={saved ? "live-dot" : "status-hollow"} />{saved ? "Saved locally" : "Unsaved changes"}</span><button className="top-action" onClick={saveProjectLocally}>Save locally</button><button className="top-action" onClick={exportProjectFile}>Export project ↓</button><button className="top-action" onClick={() => projectFileInput.current?.click()}>Import project ↑</button><input ref={projectFileInput} type="file" accept="application/json,.json" aria-label="Import ArchNova project file" onChange={importProjectFile} style={{display:"none"}} /><button className="top-action" onClick={exportPlan}>Export SVG ↗</button><button className="avatar-button" title="Workspace profile">AN</button></div>
+        <div className="topbar-actions"><span className="saved-state"><span className={saved ? "live-dot" : "status-hollow"} />{saved ? "Saved locally" : "Unsaved changes"}</span><button className="top-action" onClick={() => { setProjectName("Untitled project"); setDrawnWalls([]); setPlanMarkers([]); setPendingPoint(null); setShowStarterPlan(false); setFloor("Ground floor"); setSaved(false); }}>New blank</button><button className="top-action" onClick={() => { setShowStarterPlan(true); setSaved(false); }}>Load sample</button><button className="top-action" onClick={saveProjectLocally}>Save locally</button><button className="top-action" onClick={exportProjectFile}>Export project ↓</button><button className="top-action" onClick={() => projectFileInput.current?.click()}>Import project ↑</button><input ref={projectFileInput} type="file" accept="application/json,.json" aria-label="Import ArchNova project file" onChange={importProjectFile} style={{display:"none"}} /><button className="top-action" onClick={exportPlan}>Export SVG ↗</button><button className="avatar-button" title="Workspace profile">AN</button></div>
       </header>
       <div className="studio-subbar"><div className="breadcrumbs"><span>Projects</span><b>/</b><span>{projectName || "Untitled project"}</span><b>/</b><strong>Design workspace</strong></div><div className="subbar-right"><span className="online-indicator" /> LOCAL PROJECT <span className="sub-divider" /> AUTOSAVE OFF</div></div>
       <div className="studio-layout">
@@ -133,6 +136,7 @@ export default function StudioPage() {
             <section className="viewport plan-viewport"><div className="viewport-head"><div><span className="view-index">01</span><b>FLOOR PLAN</b><small>ORTHOGRAPHIC / TOP</small></div><span className="viewport-menu">···</span></div><div className="plan-canvas" style={{ transform: `scale(${zoom / 100})` }}><svg id="floor-plan-svg" viewBox="0 0 540 410" className="floor-plan-svg" role="img" aria-label="Measured residential floor plan" onClick={handlePlanClick} style={{ cursor: tool === "wall" || tool === "door" || tool === "window" || tool === "measure" ? "crosshair" : "default" }}>
             <defs><pattern id="smallGrid" width="12" height="12" patternUnits="userSpaceOnUse"><path d="M12 0H0V12" fill="none" stroke="#61786b" strokeOpacity=".15" strokeWidth=".55"/></pattern><pattern id="bigGrid" width="60" height="60" patternUnits="userSpaceOnUse"><rect width="60" height="60" fill="url(#smallGrid)"/><path d="M60 0H0V60" fill="none" stroke="#789184" strokeOpacity=".23" strokeWidth=".7"/></pattern></defs>
             <rect width="540" height="410" fill="url(#bigGrid)"/>
+            {showStarterPlan && <>
             <g stroke="#b8c8bd" strokeWidth="5" fill="none" strokeLinecap="square" strokeLinejoin="miter">
               <path d="M85 70H440V335H85Z"/><path d="M85 205H250V335"/><path d="M250 70V205H440"/><path d="M345 205V335"/><path d="M345 270H440"/>
             </g>
@@ -142,8 +146,9 @@ export default function StudioPage() {
             <g fill="#9bb3a4" fontSize="10" fontFamily="monospace" letterSpacing="1.1" textAnchor="middle"><text x="159" y="188">LIVING / DINING</text><text x="326" y="165">KITCHEN</text><text x="168" y="326">BEDROOM 01</text><text x="295" y="247">BATH</text><text x="391" y="262">STUDY</text><text x="392" y="314">STORE</text></g>
             {showDimensions && <g stroke="#74bd97" strokeWidth=".8" fill="#8fc5a8" fontSize="9" fontFamily="monospace"><path d="M85 48V60M440 48V60M85 53H440"/><text x="250" y="44" textAnchor="middle" stroke="none">12.40 m</text><path d="M63 70H75M63 335H75M68 70V335"/><text x="57" y="206" textAnchor="middle" transform="rotate(-90 57 206)" stroke="none">9.20 m</text></g>}
             <g fill="#75c6a0"><circle cx="85" cy="70" r="3"/><circle cx="440" cy="335" r="3"/></g>
+            </>}
             <g className="user-drawn-elements">{drawnWalls.map((w,i)=><g key={`wall-${i}`}><line x1={w.x1} y1={w.y1} x2={w.x2} y2={w.y2} stroke="#c3d5c8" strokeWidth="5" strokeLinecap="square"/><line x1={w.x1} y1={w.y1} x2={w.x2} y2={w.y2} stroke="#70c795" strokeWidth="1.2" strokeLinecap="square"/></g>)}{planMarkers.filter(m=>m.kind==="measure").filter((_,i)=>i%2===0).map((m,i)=>{const end=planMarkers.filter(p=>p.kind==="measure")[i*2+1];if(!end)return null;const length=Math.hypot(end.x-m.x,end.y-m.y);return <g key={`measurement-${i}`}><line x1={m.x} y1={m.y} x2={end.x} y2={end.y} stroke="#e1c77c" strokeWidth="1.3" strokeDasharray="4 3"/><text x={(m.x+end.x)/2} y={(m.y+end.y)/2-5} fill="#e1c77c" fontSize="9" fontFamily="monospace" textAnchor="middle">{(length/28.6).toFixed(2)} m</text></g>})}{planMarkers.map((m,i)=>m.kind === "door" ? <g key={`marker-${i}`}><path d={`M ${m.x-10} ${m.y} L ${m.x+10} ${m.y}`} stroke="#79d3a0" strokeWidth="4"/><path d={`M ${m.x-10} ${m.y} A 10 10 0 0 1 ${m.x} ${m.y-10}`} fill="none" stroke="#79d3a0" strokeWidth="1.2"/></g> : m.kind === "window" ? <g key={`marker-${i}`}><line x1={m.x-10} y1={m.y} x2={m.x+10} y2={m.y} stroke="#77c6a0" strokeWidth="5"/><line x1={m.x-10} y1={m.y-3} x2={m.x+10} y2={m.y-3} stroke="#77c6a0" strokeWidth="1"/></g> : <circle key={`marker-${i}`} cx={m.x} cy={m.y} r="4" fill="#e1c77c" stroke="#111713" strokeWidth="1.5"/>)}{pendingPoint && <circle cx={pendingPoint.x} cy={pendingPoint.y} r="5" fill="#e1c77c" stroke="#111713" strokeWidth="2"/>}</g>
-          </svg></div><div className="viewport-foot"><span>GFA / 114.2 m²</span><span>{roomCount} SPACES</span><span>{showDimensions ? "DIMENSIONS ON" : "DIMENSIONS OFF"}</span></div></section>
+          </svg></div><div className="viewport-foot"><span>{showStarterPlan ? "SAMPLE / 114.2 m²" : `${(drawnWalls.length * 0.8).toFixed(1)} m CUSTOM WALLS`}</span><span>{planMarkers.filter(m => m.kind === "door" || m.kind === "window").length + (showStarterPlan ? 8 : 0)} ELEMENTS</span><span>{showDimensions ? "DIMENSIONS ON" : "DIMENSIONS OFF"}</span></div></section>
             <section className="viewport model-viewport"><div className="viewport-head"><div><span className="view-index">02</span><b>3D CONCEPT</b><small>AXONOMETRIC / PERSPECTIVE</small></div><span className="model-tag"><span className="live-dot" /> PREVIEW</span></div><div className="model-canvas"><HouseScene walls={drawnWalls} markers={planMarkers} /><div className="model-caption">COURTYARD HOUSE <small>CONCEPT / REV 01</small></div></div><div className="viewport-foot"><span>CAMERA / AXON</span><span>CONCEPT MASSING</span><span>REV 01.04</span></div></section>
           </div>
           <footer className="workspace-status"><span><span className="online-indicator" /> READY</span><span>TOOL / {tool.toUpperCase()}</span><span>UNITS / METRIC</span><span className="status-spacer" /><span>GRID SNAP <b>ON</b></span><span>ORTHO <b>ON</b></span></footer>
