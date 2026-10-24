@@ -48,52 +48,8 @@ function HouseGeometry({ walls, markers }: { walls: PlanWall[]; markers: PlanMar
           </group>
         );
       })}
-      {/* Site plinth */}
-      <mesh position={[0, -0.1, 0]} receiveShadow>
-        <boxGeometry args={[7.6, 0.2, 5.7]} />
-        <meshStandardMaterial color="#46564b" roughness={0.9} />
-      </mesh>
-      {/* Ground level volume */}
-      <mesh position={[-0.15, 0.9, 0]} castShadow receiveShadow>
-        <boxGeometry args={[5.9, 1.8, 4.2]} />
-        <meshStandardMaterial color={wall} roughness={0.82} />
-      </mesh>
-      {/* Upper storey */}
-      <mesh position={[0.1, 2.45, -0.25]} castShadow receiveShadow>
-        <boxGeometry args={[4.5, 1.3, 3.65]} />
-        <meshStandardMaterial color="#829889" roughness={0.8} />
-      </mesh>
-      {/* Flat roof slabs */}
-      <mesh position={[0.1, 3.15, -0.25]} castShadow>
-        <boxGeometry args={[4.85, 0.16, 3.95]} />
-        <meshStandardMaterial color={roof} roughness={0.72} />
-      </mesh>
-      <mesh position={[-0.15, 1.86, 0]} castShadow>
-        <boxGeometry args={[6.2, 0.12, 4.45]} />
-        <meshStandardMaterial color="#b9c8bc" roughness={0.72} />
-      </mesh>
-      {/* Front glazing panels */}
-      {[-1.75, -0.55, 0.85].map((x, i) => (
-        <mesh key={x} position={[x, 0.92, 2.115]}>
-          <boxGeometry args={[i === 1 ? 0.85 : 0.95, 1.38, 0.035]} />
-          <meshStandardMaterial color={glass} metalness={0.28} roughness={0.22} />
-        </mesh>
-      ))}
-      {/* Upper-storey windows */}
-      {[-1.15, 0.45, 1.35].map((x) => (
-        <mesh key={x} position={[x, 2.48, 1.58]}>
-          <boxGeometry args={[0.85, 0.82, 0.045]} />
-          <meshStandardMaterial color={glass} metalness={0.2} roughness={0.2} />
-        </mesh>
-      ))}
-      {/* Window frames on upper floor */}
-      {[-1.15, 0.45, 1.35].map((x) => (
-        <group key={`frame-${x}`} position={[x, 2.48, 1.61]}>
-          <mesh position={[0, 0.43, 0]}><boxGeometry args={[0.9, 0.045, 0.06]} /><meshStandardMaterial color="#d4ded5" /></mesh>
-          <mesh position={[0, -0.43, 0]}><boxGeometry args={[0.9, 0.045, 0.06]} /><meshStandardMaterial color="#d4ded5" /></mesh>
-          <mesh position={[-0.43, 0, 0]}><boxGeometry args={[0.045, 0.86, 0.06]} /><meshStandardMaterial color="#d4ded5" /></mesh>
-          <mesh position={[0.43, 0, 0]}><boxGeometry args={[0.045, 0.86, 0.06]} /><meshStandardMaterial color="#d4ded5" /></mesh>
-        </group>
+      {/* No prebuilt house: geometry is generated from the architect's own plan edits. */}
+    </group>
       ))}
       {/* Entry door */}
       <mesh position={[1.65, 0.8, 2.14]}>
