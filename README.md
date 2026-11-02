@@ -25,3 +25,12 @@ Open http://localhost:3000.
 
 ## Important limitations
 This is an early visual prototype, not a production CAD/BIM system. The 3D viewport is illustrative rather than a true orbitable geometry engine. Cloud persistence, accounts, collaboration, professional DXF/BIM export, and production validation still need implementation.
+
+
+## ArchNova Network (Web3 foundation)
+
+The Web3 foundation is being developed alongside the Studio application. Phase 1 adds an ERC-721 project certificate registry, role-gated project registration and verification, content-hash version commitments, multi-chain testnet configuration, and contract tests.
+
+See [docs/WEB3_ARCHITECTURE.md](docs/WEB3_ARCHITECTURE.md) for the architecture, security boundaries, supported test networks, and setup instructions.
+
+**Status:** testnet foundation only. Contracts have not been deployed or audited. An ArchNova project certificate represents ownership of the digital token only; it does not by itself convey copyright, land title, or ownership of a physical building. No utility token is issued in this phase.

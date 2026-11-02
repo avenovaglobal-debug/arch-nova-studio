@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "chain:compile": "hardhat compile",
+    "chain:test": "hardhat test",
+    "chain:deploy": "hardhat run scripts/deploy-project-ownership.ts"
   },
   "dependencies": {
     "next": "^14.2.0",
@@ -14,13 +17,18 @@
     "react-dom": "^18.3.0",
     "three": "^0.170.0",
     "@react-three/fiber": "^8.17.10",
-    "@react-three/drei": "^9.120.4"
+    "@react-three/drei": "^9.120.4",
+    "@openzeppelin/contracts": "^5.1.0"
   },
   "devDependencies": {
     "@types/node": "^20.12.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "typescript": "^5.4.0",
-    "@types/three": "^0.170.0"
+    "@types/three": "^0.170.0",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.17",
+    "ts-node": "^10.9.2"
   }
 }
