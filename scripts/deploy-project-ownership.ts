@@ -12,14 +12,14 @@ async function main() {
   const creatorRole = await registry.PROJECT_CREATOR_ROLE();
   const verifierRole = await registry.PROJECT_VERIFIER_ROLE();
 
-  // The deployer receives creator permission for initial testnet setup.
-  // Production deployments should use a dedicated service wallet and multisig admin.
-  if (deployer.address.toLowerCase() !== admin.toLowerCase()) {
+  // Only grant the deployer a creator role when the deployer is also the admin.
+  // If a multisig is configured as admin, grant operational roles from that multisig
+  // after deployment; never bypass the multisig by assuming the deployer is privileged.
+  let creatorRoleGrantedToDeployer = false;
+  if (deployer.address.toLowerCase() === admin.toLowerCase()) {
     const grant = await registry.grantRole(creatorRole, deployer.address);
     await grant.wait();
-  } else {
-    const grant = await registry.grantRole(creatorRole, deployer.address);
-    await grant.wait();
+    creatorRoleGrantedToDeployer = true;
   }
 
   console.log(JSON.stringify({
@@ -30,7 +30,11 @@ async function main() {
     projectOwnership: await registry.getAddress(),
     creatorRole,
     verifierRole,
-    note: "Record this deployment in the ArchNova chain manifest. Do not treat the NFT as legal title to a building or copyright."
+    creatorRoleGrantedToDeployer,
+    nextStep: creatorRoleGrantedToDeployer
+      ? "Configure a dedicated creator service wallet and verifier wallet before production."
+      : "Use the configured admin multisig to grant PROJECT_CREATOR_ROLE and PROJECT_VERIFIER_ROLE to dedicated operational wallets.",
+    note: "The NFT represents a digital certificate only; it is not legal title to a building or copyright."
   }, null, 2));
 }
 
